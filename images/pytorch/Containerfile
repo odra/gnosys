@@ -1,4 +1,5 @@
-FROM quay.io/fedora/fedora:43
+ARG IMG=quay.io/fedora/fedora:43
+FROM ${IMG}
 
 RUN dnf install -y python3-torch && \
 dnf clean all
