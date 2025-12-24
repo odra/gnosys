@@ -1,0 +1,8 @@
+FROM quay.io/fedora/fedora:43
+
+RUN dnf install -y python3-torch && \
+dnf clean all
+
+COPY files/ /
+
+RUN /usr/local/bin/gnosys-pytorch-test

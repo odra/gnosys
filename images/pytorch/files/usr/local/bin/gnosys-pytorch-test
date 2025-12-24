@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+import torch
+
+# Attribution to some of this code: https://github.com/rasbt/stat453-deep-learning-ss21/blob/main/L08/code/cross-entropy-pytorch.ipynb
+
+Z = torch.tensor(
+	[
+		[-0.3,  -0.5, -0.5],
+		[-0.4,  -0.1, -0.5],
+		[-0.3,  -0.94, -0.5],
+		[-0.99, -0.88, -0.5]
+	]
+)
+pytorch_version = torch.__version__
+cuda_support = torch.cuda.is_available()
+apple_support = torch.backends.mps.is_available()
+
+
+def tensor_to_onehot(tensor, num_classes):
+	onehot = torch.zeros(tensor.size(0), num_classes)
+	onehot.scatter_(1, tensor.view(-1, 1).long(), 1).float()
+    
+	return onehot
+
+def test_tensor_to_onehot():
+	y = torch.tensor([0, 1, 2, 2])
+	y_enc = tensor_to_onehot(y, 3)
+	expected = torch.tensor(
+		[
+			[1., 0., 0.],
+        		[0., 1., 0.],
+        		[0., 0., 1.],
+        		[0., 0., 1.]
+		]
+	)
+
+	assert torch.equal(expected, y_enc)
+
+
+def softmax(z):
+	exp = torch.exp(z.t())
+	exp_sum = torch.sum(torch.exp(z), dim=1)
+
+	return (exp / exp_sum).t()
+
+def test_softmax():
+	res = softmax(Z)
+	expected = torch.tensor(
+		[
+			[0.3792, 0.3104, 0.3104],
+        		[0.3072, 0.4147, 0.2780],
+        		[0.4263, 0.2248, 0.3490],
+        		[0.2668, 0.2978, 0.4354]
+		]
+	)
+	
+	# round it to 4 decimals for a "good enogh" assertion 
+	assert torch.equal(res.round(decimals=4), expected.round(decimals=4))	
+
+
+def tensor_to_classlabel(z):
+	return torch.argmax(z, dim=1)
+
+def test_tensor_to_classlabel():
+	y = torch.tensor([0, 1, 2, 2])
+	res_softmax = tensor_to_classlabel(softmax(Z))
+	res_onehot = tensor_to_classlabel(tensor_to_onehot(y, 3))
+	expected_softmax = torch.tensor([0, 1, 0, 2])
+	expected_onehot = torch.tensor([0, 1, 2, 2])
+
+	assert torch.equal(expected_softmax, res_softmax)
+	assert torch.equal(expected_onehot, res_onehot)
+
+
+def cross_entropy(softmax, y_inc):
+	return - torch.sum(torch.log(softmax) * y_inc, dim=1)
+
+def test_cross_entropy():
+	y = torch.tensor([0, 1, 2, 2])
+	res_softmax = softmax(Z)
+	res_onehot = tensor_to_onehot(y, 3)
+
+	res = cross_entropy(res_softmax, res_onehot)
+	expected = torch.tensor([0.9698, 0.8801, 1.0527, 0.8314])
+	
+	assert torch.equal(expected.round(decimals=4), expected.round(decimals=4))
+	assert torch.equal(torch.mean(res).round(decimals=4), torch.tensor(0.9335).round(decimals=4))
+
+
+# run tests
+print(f'PyTorch Version: {pytorch_version}')
+print(f'Cuda Support: {cuda_support}')
+print(f'Apple Sillicon Support: {apple_support}')
+test_tensor_to_onehot()
+print('Test:tensor_to_onehot:OK')
+test_softmax()
+print('Test:softmax:OK')
+test_tensor_to_classlabel()
+print('Test:tensor_to_classlabel:OK')
+test_cross_entropy()
+print('Test:cross_entropy:OK')
