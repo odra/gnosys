@@ -6,5 +6,5 @@ python3 python3-devel \
 python3-pytest python3-pytest-sugar mypy
 
 RUN dnf install -y \
-python3-click python3-yaml \
+python3-click python3-yaml python3-types-pyyaml \
 python3-torch
