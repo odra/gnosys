@@ -3,5 +3,8 @@ FROM quay.io/fedora/fedora:43
 RUN dnf install -y \
 vim git make \
 python3 python3-devel \
-python3-torch \
-python3-click python3-pytest python3-pytest-sugar mypy
+python3-pytest python3-pytest-sugar mypy
+
+RUN dnf install -y \
+python3-click python3-yaml \
+python3-torch
