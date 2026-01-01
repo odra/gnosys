@@ -13,10 +13,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import pathlib
-from dataclasses import dataclass
-from typing import Any, Dict
+from dataclasses import dataclass, field
+from typing import Any, Dict, List
 
 import yaml
+
+
+@dataclass(frozen=True)
+class ConfigDataSource:
+    """
+    Data source config, to be parsed from the "data" user config defintion.
+    """
+    sources: List[str]
 
 
 @dataclass(frozen=True)
@@ -24,7 +32,7 @@ class ConfigData:
     """
     Data class to hold configuration data/input.
     """
-    pass
+    data: ConfigDataSource
 
 
 class Config():
@@ -33,11 +41,13 @@ class Config():
     """
     data: ConfigData
 
-    def __init__(self, data: Dict[str, Any]) -> None:
+    def __init__(self, cfg: Dict[str, Any]) -> None:
         """
         Initializes a Config objects and sets a ConfigData object based on a "data" dict.
         """
-        self.data = ConfigData()
+        self.data = ConfigData(
+            data=ConfigDataSource(**cfg['data'])
+        )
 
     @classmethod
     def from_path(cls, path: pathlib.Path) -> 'Config':

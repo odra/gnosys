@@ -10,3 +10,15 @@ def testdir():
 @pytest.fixture
 def fixdir(testdir):
     return f'{testdir}/fixtures'
+
+
+@pytest.fixture
+def cfg():
+    return {
+        'data': {
+            'sources': [
+                'file:///my/data/file.txt',
+                    'http://my-url/file.txt'
+            ]
+        }
+    }
