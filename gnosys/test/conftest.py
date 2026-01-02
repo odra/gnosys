@@ -1,4 +1,6 @@
 import os
+
+from click.testing import CliRunner
 import pytest
 
 
@@ -22,3 +24,8 @@ def cfg():
             ]
         }
     }
+
+
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
