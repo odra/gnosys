@@ -18,4 +18,3 @@ test/types:
 .PHONY: test
 test: test/types
 	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)
-

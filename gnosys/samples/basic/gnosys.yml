@@ -1,0 +1,4 @@
+gnosys:
+  data:
+    sources:
+      - file://../../test/fixtures/the_veredict.txt 
