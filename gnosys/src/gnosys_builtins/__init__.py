@@ -12,12 +12,4 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from .source import DataSource
-
-
-def load_source(source: DataSource) -> str:
-    """
-    Load data from a data source implementation and return its content as a string.
-    """
-    with source.load() as data:
-        return data 
+__version__ = '0.1.0'

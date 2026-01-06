@@ -12,12 +12,28 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from .source import DataSource
+from unittest.mock import MagicMock
+
+from gnosys import data
+from gnosys_builtins import datasources
 
 
-def load_source(source: DataSource) -> str:
-    """
-    Load data from a data source implementation and return its content as a string.
-    """
-    with source.load() as data:
-        return data 
+def test_load_source_file_ok():
+    mock_file = MagicMock()
+    mock_file.read.return_value = 'my text'
+
+    source = datasources.FileDataSource('/some-file.txt')
+    source.path = MagicMock()
+    source.path.open.return_value = mock_file
+
+    assert 'my text' == data.load_source(source)
+
+
+def test_load_source_http_ok():
+    mock_res = MagicMock()
+    mock_res.text = 'my text'
+    datasources.requests.get = MagicMock(return_value=mock_res)
+
+    source = datasources.HttpDataSource('https://someurl.com/data.txt')
+
+    assert 'my text' == data.load_source(source)

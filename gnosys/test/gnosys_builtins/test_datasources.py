@@ -18,31 +18,7 @@ from unittest.mock import MagicMock
 import pytest
 import requests
 
-from gnosys import data
-
-
-def test_build_source_file_ok():
-    source = data.build_source('file:///file.text')
-
-    assert pathlib.Path('/file.text') == source.path
-
-
-@pytest.mark.parametrize(
-    'url',
-    [
-        'http://something/file.txt',
-        'https://something/file.txt',
-    ]
-)
-def test_build_soure_http_ok(url):
-    source = data.build_source(url)
-
-    assert url == source.url
-
-
-def test_build_source_error():
-    with pytest.raises(NotImplementedError):
-        data.build_source('ws://file.txt')
+from gnosys_builtins import datasources
 
 
 # @ai-marker
@@ -54,7 +30,7 @@ def test_datasource_file_ok():
     mock_file = MagicMock()
     mock_file.read.return_value = 'my text'
 
-    source = data.FileDataSource('/some-file.txt')
+    source = datasources.FileDataSource('/some-file.txt')
     source.path = MagicMock()
     source.path.open.return_value = mock_file
 
@@ -72,7 +48,7 @@ def test_datasource_file_ok():
 # ai-model-family: GPT-5-class
 # human-reviewed: true
 def test_datasource_file_error():
-    source = data.FileDataSource('/some-file.txt')
+    source = datasources.FileDataSource('/some-file.txt')
     source.path = MagicMock()
     source.path.open.side_effect = FileNotFoundError
 
@@ -93,14 +69,14 @@ def test_datasource_file_error():
 def test_datasource_http_ok():
     mock_res = MagicMock()
     mock_res.text = 'my text'
-    data.source.requests.get = MagicMock(return_value=mock_res)
+    datasources.requests.get = MagicMock(return_value=mock_res)
 
-    source = data.HttpDataSource('https://someurl.com/data.txt')
+    source = datasources.HttpDataSource('https://someurl.com/data.txt')
 
     with source.load() as content:
         assert 'my text' == content
 
-    data.source.requests.get.assert_called_once_with('https://someurl.com/data.txt')
+    datasources.requests.get.assert_called_once_with('https://someurl.com/data.txt')
     mock_res.raise_for_status.assert_called_once()
     mock_res.close.assert_called_once()
 
@@ -113,35 +89,14 @@ def test_datasource_http_ok():
 def test_datasource_http_error(): 
     mock_res = MagicMock()
     mock_res.raise_for_status.side_effect = requests.HTTPError('Something')
-    data.source.requests.get = MagicMock(return_value=mock_res)
+    datasources.requests.get = MagicMock(return_value=mock_res)
 
-    source = data.HttpDataSource('https://someurl.com/data.txt')
+    source = datasources.HttpDataSource('https://someurl.com/data.txt')
 
     with pytest.raises(requests.RequestException):
         with source.load() as content:
             pass
 
-    data.source.requests.get.assert_called_once_with('https://someurl.com/data.txt')
+    datasources.requests.get.assert_called_once_with('https://someurl.com/data.txt')
     mock_res.raise_for_status.assert_called_once()
     mock_res.close.assert_not_called()
-
-
-def test_load_source_file_ok():
-    mock_file = MagicMock()
-    mock_file.read.return_value = 'my text'
-
-    source = data.FileDataSource('/some-file.txt')
-    source.path = MagicMock()
-    source.path.open.return_value = mock_file
-
-    assert 'my text' == data.load_source(source)
-
-
-def test_load_source_http_ok():
-    mock_res = MagicMock()
-    mock_res.text = 'my text'
-    data.source.requests.get = MagicMock(return_value=mock_res)
-
-    source = data.HttpDataSource('https://someurl.com/data.txt')
-
-    assert 'my text' == data.load_source(source)

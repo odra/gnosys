@@ -17,7 +17,8 @@ import pathlib
 import click
 
 from . import __version__ as gnosys_version
-from . import data
+from . import data, provider
+from .data.source import DataSource
 from .config import Config
 
 
@@ -57,10 +58,19 @@ def build() -> None:
     click.echo(msg('Loading data sources'))
     for source in cfg.data.sources:
         click.echo(msg(f'Loading source: {source}'))
-        data_source = data.build_source(source)
-        content = data.load_source(data_source)
+        # parse provider pkg name and class
+        ds_provider_pkg, ds_provider_obj = provider.parse(source.provider)
+        # import provider using importlib
+        DataSourceCls: DataSource = provider.load(ds_provider_pkg, ds_provider_obj)
+        # create new data source provider instance from uri
+        datasource = DataSourceCls.from_uri(source.uri)
+        # load and assert content
+        content = data.load_source(datasource)
         assert content
 
 
 def run() -> None:
+    """
+    Run the gnosys CLI application.
+    """
     cli()

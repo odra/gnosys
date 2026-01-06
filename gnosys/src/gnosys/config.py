@@ -21,10 +21,17 @@ import yaml
 
 @dataclass(frozen=True)
 class ConfigDataSource:
+    """Config datasource, requires an URI and a provider"""
+    uri: str
+    provider: str
+
+
+@dataclass(frozen=True)
+class ConfigDataSources:
     """
     Data source config, to be parsed from the "data" user config defintion.
     """
-    sources: List[str]
+    sources: List[ConfigDataSource]
 
 
 @dataclass(frozen=True)
@@ -32,7 +39,7 @@ class ConfigData:
     """
     Data class to hold configuration data/input.
     """
-    data: ConfigDataSource
+    data: ConfigDataSources
 
 
 class Config():
@@ -45,8 +52,12 @@ class Config():
         """
         Initializes a Config objects and sets a ConfigData object based on a "data" dict.
         """
+        data_obj = cfg['data']
+
         self.data = ConfigData(
-            data=ConfigDataSource(**cfg['data'])
+            data=ConfigDataSources(
+                sources=[ConfigDataSource(s['uri'], s['provider']) for s in data_obj['sources']]
+            )
         )
 
     @classmethod

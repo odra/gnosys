@@ -12,9 +12,8 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import pathlib
 from contextlib import contextmanager
-from typing import ContextManager, Iterator, Protocol
+from typing import Iterator, Protocol
 
 import requests
 
@@ -24,6 +23,16 @@ class DataSource(Protocol):
     Data source protocol which define methods for actual implementations to
     load data from a given source (url, file, etc).
     """
+    
+    @classmethod
+    def from_uri(cls, uri: str) -> 'DataSource':
+        """
+        Create a new instance from an URI string.
+
+        URI contains the information neeeded for a data source implementation
+        to load data content from. 
+        """
+        pass
 
     @contextmanager
     def load(self) -> Iterator[str]:
@@ -31,56 +40,3 @@ class DataSource(Protocol):
         Open data for reading with a context manager object returning a string.
         """
         pass
-
-
-class FileDataSource:
-    """
-    Data source implementation that loads data from a local file.
-    """
-    path: pathlib.Path
-
-    def __init__(self, path: str) -> None:
-        """
-        Initialize a new object instance
-        taking a mandatory path argument.
-        """
-        self.path = pathlib.Path(path)
-
-    @contextmanager
-    def load(self) -> Iterator[str]:
-        """
-        Read the file and return its content.
-        """
-        f = self.path.open('r')
-        
-        try:
-            yield f.read()
-        finally:
-            f.close()
-
-
-class HttpDataSource:
-    """
-    Data source implementation that loads data from a http(s) url.
-    """
-    url: str
-
-    def __init__(self, url: str) -> None:
-        """
-        Create a new object instance, using an url as a parameter
-        to be used to download the data content.
-        """
-        self.url = url
-
-    @contextmanager
-    def load(self) -> Iterator[str]:
-        """
-        Read the url over a get request and return its content.
-        """
-        res = requests.get(self.url)
-        res.raise_for_status()
-
-        try:
-            yield res.text
-        finally:
-            res.close()

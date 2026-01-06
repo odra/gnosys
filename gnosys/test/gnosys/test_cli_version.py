@@ -12,12 +12,11 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from .source import DataSource
+from gnosys.cli import cli
 
 
-def load_source(source: DataSource) -> str:
-    """
-    Load data from a data source implementation and return its content as a string.
-    """
-    with source.load() as data:
-        return data 
+def test_version(cli_runner):
+    res = cli_runner.invoke(cli, ['version'])
+
+    assert 0 == res.exit_code
+    assert 'v0.1.0\n' == res.output
