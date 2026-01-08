@@ -18,6 +18,8 @@ from typing import Any, Dict, List
 
 import yaml
 
+from . import errors
+
 
 @dataclass(frozen=True)
 class ConfigDataSource:
@@ -65,10 +67,16 @@ class Config():
         """
         Loads config text data from a file (yaml or json) and creates a new instance. 
         """
-        with path.open('r') as f:
-            data = yaml.safe_load(f)
+        try:
+            with path.open('r') as f:
+                data = yaml.safe_load(f)
+        except OSError as e:
+            _errmsg = e.strerror or f'Fail to read config at {path}'
+            _errcode = e.errno or 1
+            raise errors.GnosysError(_errmsg, errcode=_errcode)
 
-        assert 'gnosys' in data
+        if not 'gnosys' in data:
+            raise errors.GnosysError('"gnosys" key not found in gnosys.yml')
         
         return cls(data['gnosys'])
 

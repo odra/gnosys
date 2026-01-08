@@ -12,12 +12,13 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import sys
 import pathlib
 
 import click
 
 from . import __version__ as gnosys_version
-from . import data, provider
+from . import data, errors, provider
 from .data.source import DataSource
 from .config import Config
 
@@ -73,4 +74,7 @@ def run() -> None:
     """
     Run the gnosys CLI application.
     """
-    cli()
+    try:
+        cli()
+    except errors.GnosysError as err:
+        print(str(err), file=sys.stderr)

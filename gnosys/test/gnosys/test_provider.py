@@ -17,7 +17,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from gnosys import provider
+from gnosys import errors, provider
 
 
 def test_parse_ok():
@@ -34,7 +34,7 @@ def test_parse_ok():
     ['foo.bar', 'foo:bar:FooBar']
 )
 def test_parse_err(path):
-    with pytest.raises(AssertionError):
+    with pytest.raises(errors.GnosysError):
         provider.parse(path)
 
 
@@ -112,5 +112,5 @@ def test_load_error(monkeypatch, path, is_loaded, find_spec, spec_loader, module
         module_from_spec
     )
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(errors.GnosysError):
         provider.load(*path.split(':'))

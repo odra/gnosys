@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Leonardo Rossetti
+# Copyright (C) 2026 Leonardo Rossetti
 # SPDX-License-Identifier: AGPL-3.0-only
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -12,25 +12,21 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-import pathlib
-
 import pytest
 
-from gnosys.config import Config
-from gnosys.errors import GnosysError
+from gnosys import errors
 
 
-def test_load_yaml_ok(fixdir, cfg):
-    c = Config.from_path(pathlib.Path(f'{fixdir}/config.yml'))
+@pytest.mark.parametrize(
+    'err,errstr',
+    [
+        (errors.GnosysError('foo'), '[1] foo'),
+        (errors.GnosysError('bar', 2), '[2] bar'),
+        (errors.GnosysError('foobar', errcode=5), '[5] foobar'),
+    ]
+)
+def test_base_ok(err, errstr):
+    assert str(err) == errstr
 
-    assert Config(cfg) == c
-
-
-def test_load_yaml_error_filepath(fixdir):
-    with pytest.raises(GnosysError):
-        Config.from_path(pathlib.Path(f'{fixdir}/config.ym'))
-
-
-def test_load_yaml_error_format(fixdir):
-    with pytest.raises(GnosysError):
-        Config.from_path(pathlib.Path(f'{fixdir}/config.invalid.yml'))
+    with pytest.raises(err.__class__):
+        raise err

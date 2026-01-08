@@ -18,6 +18,8 @@ from contextlib import contextmanager
 
 import requests
 
+from gnosys import errors
+
 
 class FileDataSource:
     """
@@ -34,19 +36,29 @@ class FileDataSource:
 
     @classmethod
     def from_uri(cls, uri: str) -> 'FileDataSource':
+        """
+        Create a new object instance from a file uri (file://$path).
+
+        If path is relative, it's relative to the working directory that is being used.
+        """
         return cls(uri.replace('file://', ''))
 
     @contextmanager
     def load(self) -> Iterator[str]:
         """
         Read the file and return its content.
-        """
-        f = self.path.open('r')
-        
+        """ 
+        f = None 
         try:
+            f = self.path.open('r')
             yield f.read()
+        except OSError as e:
+            _errmsg = e.strerror or f'Fail to read file://{self.path}'
+            _errcode = e.errno or 1
+            raise errors.GnosysError(_errmsg, errcode=_errcode)
         finally:
-            f.close()
+            if f:
+                f.close()
 
 
 class HttpDataSource:
@@ -73,7 +85,10 @@ class HttpDataSource:
         Read the url over a get request and return its content.
         """
         res = requests.get(self.url)
-        res.raise_for_status()
+        try:
+            res.raise_for_status()
+        except requests.RequestException as e:
+            raise errors.GnosysError(str(e))
 
         try:
             yield res.text

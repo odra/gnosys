@@ -18,6 +18,7 @@ from unittest.mock import MagicMock
 import pytest
 import requests
 
+from gnosys.errors import GnosysError
 from gnosys_builtins import datasources
 
 
@@ -52,7 +53,7 @@ def test_datasource_file_error():
     source.path = MagicMock()
     source.path.open.side_effect = FileNotFoundError
 
-    with pytest.raises(OSError):
+    with pytest.raises(GnosysError):
         with source.load():
             pass
 
@@ -93,7 +94,7 @@ def test_datasource_http_error():
 
     source = datasources.HttpDataSource('https://someurl.com/data.txt')
 
-    with pytest.raises(requests.RequestException):
+    with pytest.raises(GnosysError):
         with source.load() as content:
             pass
 
