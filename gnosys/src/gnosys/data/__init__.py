@@ -20,4 +20,4 @@ def load_source(source: DataSource) -> str:
     Load data from a data source implementation and return its content as a string.
     """
     with source.load() as data:
-        return data 
+        return data
