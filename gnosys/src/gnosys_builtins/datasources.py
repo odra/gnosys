@@ -76,6 +76,14 @@ class HttpDataSource:
 
     @classmethod
     def from_uri(cls, uri: str) -> 'HttpDataSource':
+        """
+        Create a new object instance from a http(s) URI.
+
+        Valid values:
+
+        - https://something.com
+        - http:://something.com
+        """
         return cls(uri)
 
 
