@@ -64,7 +64,8 @@ def build() -> None:
         # import provider using importlib
         DataSourceCls: DataSource = provider.load(ds_provider_pkg, ds_provider_obj)
         # create new data source provider instance from uri
-        datasource = DataSourceCls.from_uri(source.uri)
+        assert source.options
+        datasource = DataSourceCls.from_uri(str(source.options['uri']))
         # load and assert content
         content = data.load_source(datasource)
         assert content

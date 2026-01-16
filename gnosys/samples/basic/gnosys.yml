@@ -1,7 +1,6 @@
 gnosys:
   data:
     sources:
-      - uri: file://../../test/fixtures/the_veredict.txt 
-        provider: gnosys_builtins.datasources:FileDataSource
-    tokenizer:
-      provider: gnosys_builtins.tokenizer:SimpleTokenizer
+      - provider: gnosys_builtins.datasources:FileDataSource
+        options:
+          uri: file://../../test/fixtures/the_veredict.txt          

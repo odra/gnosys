@@ -14,18 +14,39 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import pathlib
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, TypeAlias, Union
 
 import yaml
 
 from . import errors
 
 
+ConfigOptionValues: TypeAlias = Union[
+    str,
+    int,
+    float,
+    bool,
+    None,
+    List['ConfigOptionValues'],
+    Dict[str, 'ConfigOptionValues'] 
+]
+
+ConfigOptions: TypeAlias = Dict[str, ConfigOptionValues]
+ 
+
 @dataclass(frozen=True)
-class ConfigDataSource:
-    """Config datasource, requires an URI and a provider"""
-    uri: str
+class ConfigItem:
+    """
+    A generic config item, used accross different sections of a gnosys config.
+
+    It requires a provider, which is a python package + class implementation
+    of a given protocol and an optional options dict.
+
+    Options content will be used to build the implementations class
+    as `Cls(**options)`.
+    """
     provider: str
+    options: Optional[ConfigOptions] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -33,7 +54,7 @@ class ConfigDataSources:
     """
     Data source config, to be parsed from the "data" user config defintion.
     """
-    sources: List[ConfigDataSource]
+    sources: List[ConfigItem]
 
 
 @dataclass(frozen=True)
@@ -44,7 +65,7 @@ class ConfigData:
     data: ConfigDataSources
 
 
-class Config():
+class Config:
     """
     Class to load and parse user defined configuration into a ConfigData object.
     """
@@ -58,7 +79,7 @@ class Config():
 
         self.data = ConfigData(
             data=ConfigDataSources(
-                sources=[ConfigDataSource(s['uri'], s['provider']) for s in data_obj['sources']]
+                sources=[ConfigItem(d['provider'], d['options']) for d in data_obj['sources']]
             )
         )
 

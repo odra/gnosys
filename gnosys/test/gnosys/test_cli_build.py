@@ -27,9 +27,11 @@ def test_build_ok(cli_runner, monkeypatch):
     cfg = {
         'data': {
             'sources': [
-                {
-                    'uri': 'file:///data.txt',
-                    'provider': 'gnosys_builtins.datasources:FileDataSource'
+                { 
+                    'provider': 'gnosys_builtins.datasources:FileDataSource',
+                    'options': {
+                        'uri': 'file:///data.txt'
+                    }
                 }
             ]
         }
@@ -53,7 +55,7 @@ def test_build_ok(cli_runner, monkeypatch):
     assert 0 == res.exit_code
     assert '\n'.join([
         '[gnosys.info] Loading data sources',
-        '[gnosys.info] Loading source: ConfigDataSource(uri=\'file:///data.txt\', provider=\'gnosys_builtins.datasources:FileDataSource\')',
+        '[gnosys.info] Loading source: ConfigItem(provider=\'gnosys_builtins.datasources:FileDataSource\', options={\'uri\': \'file:///data.txt\'})',
         ''
     ]) == res.output
 

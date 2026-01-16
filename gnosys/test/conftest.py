@@ -33,8 +33,18 @@ def cfg():
     return {
         'data': {
             'sources': [
-                {'uri': 'file:///my/data/file.txt', 'provider': 'gnosys_builtins.datasource:FileDataSource'},
-                {'uri': 'http://my-url/file.txt', 'provider': 'gnosys_builtins.datasource:HttpDataSource'}
+                {
+                    'provider': 'gnosys_builtins.datasource:FileDataSource',
+                    'options': {
+                        'uri': 'file:///my/data/file.txt'
+                    }
+                },
+                {
+                    'provider': 'gnosys_builtins.datasource:HttpDataSource',
+                    'options': {
+                        'uri': 'http://my-url/file.txt'
+                    }
+                }
             ]
         }
     }
