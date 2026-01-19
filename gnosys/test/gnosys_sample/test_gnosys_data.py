@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from unittest.mock import MagicMock
 
-from gnosys import data
+from gnosys import config, data
 from gnosys_builtins import datasources
 
 
@@ -35,5 +35,16 @@ def test_load_source_http_ok():
     datasources.requests.get = MagicMock(return_value=mock_res)
 
     source = datasources.HttpDataSource('https://someurl.com/data.txt')
+
+    assert 'my text' == data.load_source(source)
+
+
+def test_build_source_file_ok():
+    mock_file = MagicMock()
+    mock_file.read.return_value = 'my text'
+
+    source = datasources.FileDataSource('/some-file.txt')
+    source.path = MagicMock()
+    source.path.open.return_value = mock_file
 
     assert 'my text' == data.load_source(source)

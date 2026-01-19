@@ -34,13 +34,13 @@ def cfg():
         'data': {
             'sources': [
                 {
-                    'provider': 'gnosys_builtins.datasource:FileDataSource',
+                    'provider': 'gnosys_sample.datasource:FileDataSource',
                     'options': {
                         'uri': 'file:///my/data/file.txt'
                     }
                 },
                 {
-                    'provider': 'gnosys_builtins.datasource:HttpDataSource',
+                    'provider': 'gnosys_sample.datasource:HttpDataSource',
                     'options': {
                         'uri': 'http://my-url/file.txt'
                     }

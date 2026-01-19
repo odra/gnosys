@@ -1,6 +1,6 @@
 gnosys:
   data:
     sources:
-      - provider: gnosys_builtins.datasources:FileDataSource
+      - provider: gnosys_sample.datasources:FileDataSource
         options:
           uri: file://../../test/fixtures/the_veredict.txt          
