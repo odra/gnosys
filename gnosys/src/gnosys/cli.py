@@ -59,14 +59,7 @@ def build() -> None:
     click.echo(msg('Loading data sources'))
     for source in cfg.data.sources:
         click.echo(msg(f'Loading source: {source}'))
-        # parse provider pkg name and class
-        ds_provider_pkg, ds_provider_obj = provider.parse(source.provider)
-        # import provider using importlib
-        DataSourceCls: DataSource = provider.load(ds_provider_pkg, ds_provider_obj)
-        # create new data source provider instance from uri
-        assert source.options
-        datasource = DataSourceCls.from_uri(str(source.options['uri']))
-        # load and assert content
+        datasource = data.build_source(source)
         content = data.load_source(datasource)
         assert content
 

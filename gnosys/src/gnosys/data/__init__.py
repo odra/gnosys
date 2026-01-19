@@ -12,8 +12,11 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+from typing import List
+
 from .source import DataSource
-from .token import Tokenizer
+from gnosys import errors, provider
+from gnosys.config import ConfigItem
 
 
 def load_source(source: DataSource) -> str:
@@ -22,3 +25,21 @@ def load_source(source: DataSource) -> str:
     """
     with source.load() as data:
         return data
+
+
+def build_source(source: ConfigItem) -> DataSource:
+    """
+    Build a new DataSource implementation from a source ConfigItem by
+    loading and creating a new provider.
+
+    The soruce.options dict should contain an `uri` key with the source uri.
+    """
+    assert source.options
+
+    ds_provider_pkg, ds_provider_obj = provider.parse(source.provider) 
+    DataSourceCls: DataSource = provider.load(ds_provider_pkg, ds_provider_obj)
+
+    if not 'uri' in source.options:
+        raise errors.GnosysError('Missing uri key from source.options')
+    
+    return DataSourceCls.from_uri(str(source.options['uri']))
