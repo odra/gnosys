@@ -3,4 +3,11 @@ gnosys:
     sources:
       - provider: gnosys_sample.datasources:FileDataSource
         options:
-          uri: file://../../test/fixtures/the_veredict.txt          
+          uri: file://../../test/fixtures/the_veredict.txt
+    pipelines:
+      - provider: gnosys_sample.pipelines.TextToTensorPipeline
+        options:
+          batch_size: 1
+          shuffle: true
+          drop_last: true
+          num_workers: 0
