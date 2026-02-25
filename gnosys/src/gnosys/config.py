@@ -35,15 +35,17 @@ ConfigOptions: TypeAlias = Dict[str, ConfigOptionValues]
  
 
 @dataclass(frozen=True)
-class ConfigItem:
+class Provider:
     """
-    A generic config item, used accross different sections of a gnosys config.
+    A provider defines an external module that "provides" a functionality,
+    used accross different sections of a gnosys config.
 
-    It requires a provider, which is a python package + class implementation
-    of a given protocol and an optional options dict.
+    It requires a provider, which is a python package + a callable object,
+    the callable object can be a class implementation of a protocol or a simple
+    function.
 
-    Options content will be used to build the implementations class
-    as `Cls(**options)`.
+    Options content will be used to invoke the callable objects with kwargs,
+    if any is provided.
     """
     provider: str
     options: Optional[ConfigOptions] = field(default_factory=dict)
@@ -54,7 +56,7 @@ class ConfigDataSources:
     """
     Data source config, to be parsed from the "data" user config defintion.
     """
-    sources: List[ConfigItem]
+    sources: List[Provider]
 
 
 @dataclass(frozen=True)
@@ -79,7 +81,7 @@ class Config:
 
         self.data = ConfigData(
             data=ConfigDataSources(
-                sources=[ConfigItem(d['provider'], d['options']) for d in data_obj['sources']]
+                sources=[Provider(d['provider'], d['options']) for d in data_obj['sources']]
             )
         )
 
@@ -107,4 +109,5 @@ class Config:
         """
         if not isinstance(other, Config):
             raise NotImplementedError
+
         return self.data == other.data

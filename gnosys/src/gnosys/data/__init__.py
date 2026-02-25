@@ -12,11 +12,11 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from typing import List
+from typing import Any, List, Optional
 
 from .source import DataSource
 from gnosys import errors, provider
-from gnosys.config import ConfigItem
+from gnosys.config import Provider
 
 
 def load_source(source: DataSource) -> str:
@@ -27,9 +27,9 @@ def load_source(source: DataSource) -> str:
         return data
 
 
-def build_source(source: ConfigItem) -> DataSource:
+def build_source(source: Provider) -> DataSource:
     """
-    Build a new DataSource implementation from a source ConfigItem by
+    Build a new DataSource implementation from a source Provider by
     loading and creating a new provider.
 
     The soruce.options dict should contain an `uri` key with the source uri.

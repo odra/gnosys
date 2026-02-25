@@ -21,7 +21,7 @@ from gnosys import config, errors, data
 
 def test_build_source_ok(monkeypatch):
     # config item
-    item = config.ConfigItem(provider='foo.bar:FooBar', options={'uri': 'file:///foo.bar'})
+    item = config.Provider(provider='foo.bar:FooBar', options={'uri': 'file:///foo.bar'})
     
     # mock objects
     ## Data Source mock implemention, it does not need to do anything
@@ -61,7 +61,7 @@ def test_build_source_ok(monkeypatch):
 )
 def test_build_source_err(monkeypatch, provider, options, error):
     # config item
-    item = config.ConfigItem(provider=provider, options=options)
+    item = config.Provider(provider=provider, options=options)
     
     with pytest.raises(error):   
         data.build_source(item)

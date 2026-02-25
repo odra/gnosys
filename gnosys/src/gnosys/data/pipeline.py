@@ -1,3 +1,4 @@
+from enum import Enum
 from contextlib import contextmanager
 from typing import Any, Generator, Iterator, Protocol, TypeVar
 
@@ -7,6 +8,15 @@ from .source import DataSource
 SourceT = TypeVar('SourceT')
 
 DataT = TypeVar('DataT')
+
+class DataPipelineStep(Enum):
+    """
+    Enum to be used when yielding internal methods (or steps).
+
+    Not much for now, just something to verify the type for.
+    """
+    NEXT = 0
+
 
 class DataPipeline(Protocol[SourceT, DataT]):
     """
@@ -31,21 +41,19 @@ class DataPipeline(Protocol[SourceT, DataT]):
 
         vocab: Dict[str, int]
 
-        def inject(self, *args: DataSource) -> Iterator['LLMDataPipeline[str, pytorch.Tensor]']:
+        def inject(self, *args: SourceT) -> Iterator['LLMDataPipeline[str, pytorch.Tensor]']:
           for ds in args:
             with ds.load() as raw_data:
                ...
 
-        def __call__(self, data: str) -> Generator[Any, Any, DataT]:
-          vocab = yield self.build_vocab()
-          tokens = yield self.tokenize(vocab)
-          tensors = yield self.to_tensors(tokens, data)
-
-          return tensors
+        def __call__(self, data: str) -> Iterator[DataPipelineStep | DataT]:
+          yield self.build_vocab() # return DataPipelineStep::NEXT
+          yield self.tokenize(vocab) # return DataPipelineStep::NEXT
+          yield self.to_tensors(tokens, data) # return something that is DataT (loop stops)
     """
 
     @contextmanager
-    def inject(self, *args: DataSource) -> Iterator['DataPipeline[SourceT, DataT]']:
+    def inject(self, *args: SourceT) -> Iterator['DataPipeline[SourceT, DataT]']:
         """
         This method will be used to inject "train data" before transforming the data.
 
@@ -53,7 +61,7 @@ class DataPipeline(Protocol[SourceT, DataT]):
         """
         pass
 
-    def __call__(self, data: SourceT) -> Generator[Any, Any, DataT]:
+    def __call__(self, data: SourceT) -> Iterator[DataPipelineStep | DataT]:
         """
         Run the pipeline. Implementations are encouraged to split their
         pipelines into tasks (instance methods) and yield those until the
