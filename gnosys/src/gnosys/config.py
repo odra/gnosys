@@ -52,6 +52,19 @@ class Provider:
 
 
 @dataclass(frozen=True)
+class Pipeline:
+    """
+    A pipeline run a sequence of steps, usually to transform data around,
+    with each pipeline step being a function which uses the output of the
+    previous step as input.
+
+    Pipelines are used across different sections of gnosys as generic
+    mechanism to perform data transformation.
+    """
+    steps: List[Provider]
+
+
+@dataclass(frozen=True)
 class ConfigDataSources:
     """
     Data source config, to be parsed from the "data" user config defintion.
@@ -65,6 +78,7 @@ class ConfigData:
     Data class to hold configuration data/input.
     """
     data: ConfigDataSources
+    pipeline: Pipeline
 
 
 class Config:
@@ -81,8 +95,9 @@ class Config:
 
         self.data = ConfigData(
             data=ConfigDataSources(
-                sources=[Provider(d['provider'], d['options']) for d in data_obj['sources']]
-            )
+                sources=[Provider(d['provider'], d['options']) for d in data_obj['sources']],
+            ),
+            pipeline=Pipeline(steps=[Provider(p['provider'], p['options']) for p in data_obj['pipeline']['steps']])
         )
 
     @classmethod

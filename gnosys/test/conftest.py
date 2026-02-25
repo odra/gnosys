@@ -45,7 +45,10 @@ def cfg():
                         'uri': 'http://my-url/file.txt'
                     }
                 }
-            ]
+            ],
+            'pipeline': {
+                'steps': []
+            }
         }
     }
 

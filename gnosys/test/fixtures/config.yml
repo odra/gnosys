@@ -7,3 +7,5 @@ gnosys:
       - provider: gnosys_sample.datasource:HttpDataSource
         options:
           uri: http://my-url/file.txt
+    pipeline:
+      steps: []

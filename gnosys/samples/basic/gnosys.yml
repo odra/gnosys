@@ -4,3 +4,5 @@ gnosys:
       - provider: gnosys_sample.datasources:FileDataSource
         options:
           uri: file://../../test/fixtures/the_veredict.txt
+    pipeline:
+      steps: []

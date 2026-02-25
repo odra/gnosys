@@ -33,7 +33,10 @@ def test_build_ok(cli_runner, monkeypatch):
                         'uri': 'file:///data.txt'
                     }
                 }
-            ]
+            ],
+            'pipeline': {
+                'steps': []
+            }
         }
     }
     mock_cfg_data = MagicMock()
