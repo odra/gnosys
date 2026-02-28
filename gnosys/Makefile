@@ -16,7 +16,7 @@ test/types/gnosys:
 	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)/gnosys
 
 .PHONY: test/types/gnosys_sample
-test/types/gnosys_builtins:
+test/types/gnosys_sample:
 	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)/gnosys_sample
 
 .PHONY: test/types
@@ -28,7 +28,7 @@ test/gnosys: test/types/gnosys
 	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys
 
 .PHONY: test/gnosys_sample
-test/gnosys_builtins: test/types/gnosys_sample
+test/gnosys_sample: test/types/gnosys_sample
 	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys_sample
 
 .PHONY: test

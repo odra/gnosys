@@ -19,7 +19,7 @@ import pytest
 import requests
 
 from gnosys.errors import GnosysError
-from gnosys_builtins import datasources
+from gnosys_sample import datasources
 
 
 # @ai-marker

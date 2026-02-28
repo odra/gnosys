@@ -15,7 +15,7 @@
 from unittest.mock import MagicMock
 
 from gnosys import config, data
-from gnosys_builtins import datasources
+from gnosys_sample import datasources
 
 
 def test_load_source_file_ok():
