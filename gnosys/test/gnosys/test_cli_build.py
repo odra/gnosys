@@ -12,7 +12,7 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from gnosys import cli
 
@@ -35,7 +35,12 @@ def test_build_ok(cli_runner, monkeypatch):
                 }
             ],
             'pipeline': {
-                'steps': []
+                'steps': [
+                    {
+                        'provider': 'foo.bar:foobar',
+                        'options': {}
+                    }
+                ]
             }
         }
     }
@@ -46,9 +51,11 @@ def test_build_ok(cli_runner, monkeypatch):
     # mock data source
     mock_datasource = MagicMock()
     mock_load_source = MagicMock(return_value='data')
-    monkeypatch.setattr(cli.data, 'load_source', mock_load_source)    
-    
-    res = cli_runner.invoke(cli.cli, ['build'])
+    monkeypatch.setattr(cli.data, 'load_source', mock_load_source)
+
+    mock_pipeline_run = MagicMock(return_value='my pipeline')
+    with patch('gnosys.cli.pipeline.run', side_effect=mock_pipeline_run):
+        res = cli_runner.invoke(cli.cli, ['build'])
 
     # assert function calls
     mock_cfg.assert_called_once()
@@ -59,6 +66,7 @@ def test_build_ok(cli_runner, monkeypatch):
     assert '\n'.join([
         '[gnosys.info] Loading data sources',
         '[gnosys.info] Loading source: Provider(provider=\'gnosys_sample.datasources:FileDataSource\', options={\'uri\': \'file:///data.txt\'})',
+        '[gnosys.info] Running Data Pipeline',
         ''
     ]) == res.output
 

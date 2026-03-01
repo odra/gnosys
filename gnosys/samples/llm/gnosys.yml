@@ -5,4 +5,20 @@ gnosys:
         options:
           uri: file://../../test/fixtures/the_veredict.txt
     pipeline:
-      steps: []
+      steps:
+      - provider: gnosys_sample.data.pipeline:tokenize
+        options: {}
+      - provider: gnosys_sample.data.pipeline:input_target_pairs
+        options:
+          batch_size: 8
+          max_length: 4
+          stride: 128
+          shuffle: false
+          drop_last: true
+          num_workers: 0
+      - provider: gnosys_sample.data.pipeline:embeddings
+        options:
+          context_length: 4
+          seed: 123
+          vocab_size: 50257
+          output_dim: 256

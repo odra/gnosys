@@ -18,7 +18,7 @@ import pathlib
 import click
 
 from . import __version__ as gnosys_version
-from . import data, errors, provider
+from . import data, errors, pipeline, provider
 from .data.source import DataSource
 from .config import Config
 
@@ -57,12 +57,14 @@ def build() -> None:
     cfg = config.data
 
     click.echo(msg('Loading data sources'))
+    content = []
     for source in cfg.data.sources:
         click.echo(msg(f'Loading source: {source}'))
         datasource = data.build_source(source)
-        content = data.load_source(datasource)
-        assert content
+        content.append(data.load_source(datasource))
 
+    click.echo(msg('Running Data Pipeline'))
+    *_, pipeline_res = pipeline.run(cfg.pipeline, '<|endoftext|>'.join(content))
 
 def run() -> None:
     """
