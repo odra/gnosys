@@ -12,4 +12,7 @@ python3-yaml python3-types-pyyaml \
 python3-requests python3-types-requests \
 python3-torch
 
+RUN dnf install -y \
+sphinx python3-sphinx_rtd_theme
+
 RUN pip install tiktoken
