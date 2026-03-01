@@ -9,12 +9,16 @@ PYTEST_OPTS :=
 MYPY := /usr/bin/mypy
 MYPY_OPTS := --strict
 # project vars
-SRC_DIR := $(MAKEFILE_DIR)/./src
-TEST_DIR := $(MAKEFILE_DIR)/./test
+SRC_DIR := $(MAKEFILE_DIR)src
+TEST_DIR := $(MAKEFILE_DIR)test
 
 # swallow extra CLI args so make doesn't error
 %:
 	@:
+
+.PHONY: clean
+clean:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 .PHONY: test/types/gnosys
 test/types/gnosys:
@@ -26,14 +30,13 @@ test/types/gnosys_sample:
 
 .PHONY: test/types
 test/types: test/types/gnosys test/types/gnosys_sample
-	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)
 
 .PHONY: test/gnosys
-test/gnosys: test/types/gnosys
+test/gnosys:
 	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys
 
 .PHONY: test/gnosys_sample
-test/gnosys_sample: test/types/gnosys_sample
+test/gnosys_sample:
 	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys_sample
 
 .PHONY: test
