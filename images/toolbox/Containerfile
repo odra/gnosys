@@ -16,3 +16,5 @@ RUN dnf install -y \
 sphinx python3-sphinx_rtd_theme
 
 RUN pip install tiktoken
+
+RUN dnf clean all
