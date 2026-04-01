@@ -17,19 +17,14 @@ import pathlib
 
 import click
 
+from . import log
 from . import __version__ as gnosys_version
 from . import data, errors, pipeline, provider
 from .data.source import DataSource
 from .config import Config
 
 
-def msg(msg: str, kind: str = 'info') -> str:
-    """
-    Create a formatted string for the CLI's output.
-
-    Using the log module is probably a better solution to this.
-    """
-    return f'[gnosys.{kind}] {msg}'
+logger = log.get_logger()
 
 
 @click.group
@@ -56,15 +51,16 @@ def build() -> None:
     config = Config.from_path(cfg_path)
     cfg = config.data
 
-    click.echo(msg('Loading data sources'))
+    logger.info('Loading data sources')
     content = []
     for source in cfg.data.sources:
-        click.echo(msg(f'Loading source: {source}'))
+        logger.info(f'Loading source: %s', source)
         datasource = data.build_source(source)
         content.append(data.load_source(datasource))
 
-    click.echo(msg('Running Data Pipeline'))
+    logger.info('Running Data Pipeline')
     *_, pipeline_res = pipeline.run(cfg.pipeline, '<|endoftext|>'.join(content))
+
 
 def run() -> None:
     """
@@ -73,4 +69,4 @@ def run() -> None:
     try:
         cli()
     except errors.GnosysError as err:
-        print(str(err), file=sys.stderr)
+        logger.error(str(err))

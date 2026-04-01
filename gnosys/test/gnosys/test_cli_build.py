@@ -12,6 +12,7 @@
 # 
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import logging
 from unittest.mock import MagicMock, patch
 
 from gnosys import cli
@@ -22,7 +23,7 @@ from gnosys import cli
 # ai-provider: OpenAI
 # ai-model-family: GPT-5-class
 # human-reviewed: true
-def test_build_ok(cli_runner, monkeypatch):
+def test_build_ok(cli_runner, monkeypatch, caplog):
     # mock config
     cfg = {
         'data': {
@@ -54,21 +55,20 @@ def test_build_ok(cli_runner, monkeypatch):
     monkeypatch.setattr(cli.data, 'load_source', mock_load_source)
 
     mock_pipeline_run = MagicMock(return_value='my pipeline')
-    with patch('gnosys.cli.pipeline.run', side_effect=mock_pipeline_run):
+    with patch('gnosys.cli.pipeline.run', side_effect=mock_pipeline_run), caplog.at_level(logging.INFO):
         res = cli_runner.invoke(cli.cli, ['build'])
 
     # assert function calls
     mock_cfg.assert_called_once()
-    mock_load_source.assert_called_once() 
+    mock_load_source.assert_called_once()
 
     # assert cli result and output
     assert 0 == res.exit_code
-    assert '\n'.join([
-        '[gnosys.info] Loading data sources',
-        '[gnosys.info] Loading source: Provider(provider=\'gnosys_sample.datasources:FileDataSource\', options={\'uri\': \'file:///data.txt\'})',
-        '[gnosys.info] Running Data Pipeline',
-        ''
-    ]) == res.output
+    assert [
+        ('INFO', 'Loading data sources'),
+        ('INFO', 'Loading source: Provider(provider=\'gnosys_sample.datasources:FileDataSource\', options={\'uri\': \'file:///data.txt\'})'),
+        ('INFO', 'Running Data Pipeline')
+    ] == [(r.levelname, r.message) for r in caplog.records]
 
 
 def test_build_error_config(cli_runner, monkeypatch):
