@@ -17,7 +17,7 @@ import typing
 import logging
 
 
-__logger: logging.Logger
+__logger: typing.Optional[logging.Logger] = None
 
 
 class DefaultFormatter(logging.Formatter):
@@ -68,8 +68,7 @@ def setup_logger(name: str = 'gnosys',
     """
     global __logger
 
-    if __logger is None:
-        __logger = logging.getLogger(name)
+    __logger = logging.getLogger(name)
 
     __logger.handlers = []
     __logger.addHandler(stdout_handler if stdout_handler else StdoutHandler(formatter))
@@ -87,4 +86,6 @@ def get_logger() -> logging.Logger:
     if __logger is None:
         setup_logger()
 
-    return __logger   
+    assert __logger
+
+    return __logger 
