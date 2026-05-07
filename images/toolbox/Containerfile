@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Toolbox Containerfile
+# Copyright (C) 2026 Leonardo Rossetti
+FROM quay.io/fedora/fedora-toolbox:43
+
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV PATH=/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+
+RUN dnf update -y
+
+RUN dnf install -y \
+vim git make \
+python3 python3-devel \
+python3-pytest python3-pytest-sugar mypy \
+rust cargo
+
+RUN dnf install -y \
+python3-click \
+python3-yaml python3-types-pyyaml \
+python3-requests python3-types-requests \
+python3-torch
+
+RUN curl https://developer.download.nvidia.com/compute/cuda/repos/fedora43/x86_64/cuda-fedora43.repo > /etc/yum.repos.d/cuda.repo
+RUN dnf install -y \
+util-linux \
+userspace-rcu \
+cuda-toolkit 
+
+RUN pip install tiktoken
+
+RUN dnf clean all
