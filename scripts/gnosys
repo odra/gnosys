@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONPATH=gnosys/src/ $(which python3) -m gnosys $@

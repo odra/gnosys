@@ -11,6 +11,12 @@ Most of the work and source code is inspired from the following book: `Rashka, S
 * `images`: Containerfiles used in this project
 * `scripts`: tooling and random script files
 
+## Running
+
+```
+./scripts/gnosys ...
+```
+
 ## References
 
 * `Rashka, Sebastian. 2025. Build a Large Language Model. Manning. ISBN: 9781633437166`
