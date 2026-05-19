@@ -23,11 +23,14 @@ def version() -> None:
 
 
 @cli.command
-@click.option('--source', 'sources', multiple=True, type=str, required=True)
-def pretrain(sources: List[str]) -> None:
+@click.option('--source', 'sources', multiple=True, type=str, required=True, help='data source uri (can be used more than once)')
+@click.option('--source-mark', type=str, default='<|endoftext|>', help='delimeter between sources raw data (default: <|endoftext|>)')
+def pretrain(sources: List[str], source_mark: str) -> None:
     """pretrain stage"""
     data = []
-    for source in sources:
+    for idx, source in enumerate(sources):
+        if idx > 0:
+            data.append(source_mark)
         click.echo(f'Loading source: {source}')
         data.append(datasource.read(source))
         click.echo(f'Loaded')
