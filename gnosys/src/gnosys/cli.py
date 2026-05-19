@@ -25,8 +25,8 @@ def version() -> None:
 @cli.command
 @click.option('--source', 'sources', multiple=True, type=str, required=True, help='data source uri (can be used more than once)')
 @click.option('--source-mark', type=str, default='<|endoftext|>', help='delimeter between sources raw data (default: <|endoftext|>)')
-def pretrain(sources: List[str], source_mark: str) -> None:
-    """pretrain stage"""
+def build_llm(sources: List[str], source_mark: str) -> None:
+    """build llm stage"""
     data = []
     for idx, source in enumerate(sources):
         if idx > 0:
