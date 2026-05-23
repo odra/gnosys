@@ -25,5 +25,7 @@ def test_build_llm_ok(cli_runner):
     assert '\n'.join([
         'Loading source: file:///data.txt',
         'Loaded',
+        'Initializing tokenization process...',
+        'Total Tokens: 2',
         ''
     ]) == res.output

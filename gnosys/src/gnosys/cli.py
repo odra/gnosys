@@ -7,7 +7,7 @@ from typing import List
 import click
 
 from . import __version__ as gnosys_version
-from . import datasource
+from . import datasource, tokenizer
 
 
 @click.group
@@ -25,7 +25,8 @@ def version() -> None:
 @cli.command
 @click.option('--source', 'sources', multiple=True, type=str, required=True, help='data source uri (can be used more than once)')
 @click.option('--source-mark', type=str, default='<|endoftext|>', help='delimeter between sources raw data (default: <|endoftext|>)')
-def build_llm(sources: List[str], source_mark: str) -> None:
+@click.option('--encoding', 'encoding_model', type=str, default='gpt2', help='openai/tiktoken encoding model to use (default: gpt2)')
+def build_llm(sources: List[str], source_mark: str, encoding_model: str) -> None:
     """build llm stage"""
     data = []
     for idx, source in enumerate(sources):
@@ -34,6 +35,11 @@ def build_llm(sources: List[str], source_mark: str) -> None:
         click.echo(f'Loading source: {source}')
         data.append(datasource.read(source))
         click.echo(f'Loaded')
+
+    click.echo('Initializing tokenization process...')
+    t = tokenizer.Tokenizer(encoding_model)
+    tokens = t.encode(''.join(data), extras={source_mark})
+    click.echo(f'Total Tokens: {len(tokens)}')
 
 
 def run() -> None:
