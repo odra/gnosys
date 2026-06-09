@@ -14,18 +14,26 @@ def test_build_llm_err(cli_runner):
     assert 'Missing option \'--source\'' in res.output
 
 
-def test_build_llm_ok(cli_runner):
-    ds_read_mock = MagicMock(return_value='foobar')
+def test_build_llm_ok(cli_runner, fixdir):
+    res = cli_runner.invoke(cli, ['build-llm', '--source', f'file:///{fixdir}/the_verdict.txt'])
 
-    with patch('gnosys.cli.datasource.read', ds_read_mock):
-        res = cli_runner.invoke(cli, ['build-llm', '--source', 'file:///data.txt'])
-
-    ds_read_mock.assert_called_with('file:///data.txt')
     assert 0 == res.exit_code
     assert '\n'.join([
-        'Loading source: file:///data.txt',
-        'Loaded',
-        'Initializing tokenization process...',
-        'Total Tokens: 2',
-        ''
+    'Inputs',
+	'\tSource Mark: <|endoftext|>',
+	'\tEncoding: gpt2',
+	'\tMax Length: 256',
+	'\tStride: 128',
+	'\tBatch Size: 4',
+    f'Loading source: file:///{fixdir}/the_verdict.txt',
+    'Loaded',
+    'Initializing tokenization process...',
+    'Total Tokens: 5146',
+    'Sampling Data...',
+    'Applying Embedding Layer...',
+    'Inputs shape: torch.Size([4, 256])',
+    'Token Embeddings Shape: torch.Size([4, 256, 256])',
+    'Pos Embeddings Shape: torch.Size([256, 256])',
+    'Input Embeddings Shape: torch.Size([4, 256, 256])',
+    ''
     ]) == res.output

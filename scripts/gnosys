@@ -1,3 +1,8 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: AGPL-3.0-only
+# wrapper script to invoke gnosys cli from gnosys/src/__main__.py
+# Copyright (C) 2026 Leonardo Rossetti
+
+
 PYTHONPATH=gnosys/src/ $(which python3) -m gnosys $@
