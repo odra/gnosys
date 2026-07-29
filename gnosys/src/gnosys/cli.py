@@ -10,7 +10,7 @@ import torch
 from . import __version__ as gnosys_version
 from . import datasource, tokenizer
 from . import data as datalib
-
+from . import llm
 
 @click.group
 def cli() -> None:
@@ -47,34 +47,32 @@ def build_llm(sources: List[str], source_mark: str, encoding_model: str,
 
     # fetch data sources
     data = []
-    for idx, source in enumerate(sources):
-        if idx > 0:
-            data.append(source_mark)
-        click.echo(f'Loading source: {source}')
-        data.append(datasource.read(source))
-        click.echo(f'Loaded')
-
+    for source, content in llm.fetch_datasources(sources, source_mark):
+        if source:
+            click.echo(f'Loading source: {source}')
+        data.append(content)
+        if source:
+            click.echo(f'Loaded')
+ 
     # tokenize data
     click.echo('Initializing tokenization process...')
-    t = tokenizer.Tokenizer(encoding_model)
-    tokens = t.encode(''.join(data), extras={source_mark})
+    tokens = llm.encode_data(encoding_model, data, extras={source_mark})
     click.echo(f'Total Tokens: {len(tokens)}')
 
     # create and load dataset
     click.echo('Sampling Data...')
-    ds: Any  = datalib.create_dataset(tokens, max_length=max_length, stride=stride) #TODO: fix typing
-    dl: Any  = datalib.create_data_loader(ds, batch_size=batch_size) #TODO: fix typing
-    dl_iter = iter(dl)
+    dl: Any = llm.create_data_loader(tokens, max_length=max_length, stride=stride, batch_size=batch_size)
 
     # create token embedding layer
     click.echo('Applying Embedding Layer...')
-    inputs, targets = next(dl_iter)
+    inputs, targets = next(iter(dl))
     click.echo(f'Inputs shape: {inputs.shape}')
-    token_embeddings = datalib.create_embeddings(inputs, vocab_size, output_dim)
+
+    token_embeddings = llm.create_embeddings(vocab_size, output_dim, data_loader=dl)
     click.echo(f'Token Embeddings Shape: {token_embeddings.shape}')
 
     # create gpt absolute embedding layer
-    pos_embeddings = datalib.create_embeddings(torch.arange(max_length), max_length, output_dim)
+    pos_embeddings = llm.create_embeddings(max_length, output_dim)
     click.echo(f'Pos Embeddings Shape: {pos_embeddings.shape}')
 
     # input embeddings
