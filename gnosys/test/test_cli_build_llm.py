@@ -31,7 +31,6 @@ def test_build_llm_ok(cli_runner, fixdir):
     'Total Tokens: 5146',
     'Sampling Data...',
     'Applying Embedding Layer...',
-    'Inputs shape: torch.Size([4, 256])',
     'Token Embeddings Shape: torch.Size([4, 256, 256])',
     'Pos Embeddings Shape: torch.Size([256, 256])',
     'Input Embeddings Shape: torch.Size([4, 256, 256])',

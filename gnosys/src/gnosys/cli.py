@@ -3,6 +3,7 @@
 # Copyright (C) 2026 Leonardo Rossetti
 
 from typing import Any, List
+from collections import deque
 
 import click
 import torch
@@ -11,6 +12,7 @@ from . import __version__ as gnosys_version
 from . import datasource, tokenizer
 from . import data as datalib
 from . import llm
+from .llm.pipeline import llm_pipeline
 
 @click.group
 def cli() -> None:
@@ -22,7 +24,6 @@ def cli() -> None:
 def version() -> None:
     """show program version"""
     click.echo(f'v{gnosys_version}')
-
 
 @cli.command
 @click.option('--source', 'sources', multiple=True, type=str, required=True, help='data source uri (can be used more than once)')
@@ -36,8 +37,16 @@ def version() -> None:
 def build_llm(sources: List[str], source_mark: str, encoding_model: str,
               max_length: int, stride: int, batch_size: int,
               vocab_size: int, output_dim: int) -> None:
-    """build llm stage"""
-    # show variables
+    pipeline_vars = {
+        'source_mark': source_mark,
+        'encoding_model': encoding_model,
+        'max_length': max_length,
+        'stride': stride,
+        'batch_size': batch_size,
+        'vocab_size': vocab_size,
+        'output_dim': output_dim
+    }
+
     click.echo(f'Inputs')
     click.echo(f'\tSource Mark: {source_mark}')
     click.echo(f'\tEncoding: {encoding_model}')
@@ -45,39 +54,8 @@ def build_llm(sources: List[str], source_mark: str, encoding_model: str,
     click.echo(f'\tStride: {stride}')
     click.echo(f'\tBatch Size: {batch_size}')
 
-    # fetch data sources
-    data = []
-    for source, content in llm.fetch_datasources(sources, source_mark):
-        if source:
-            click.echo(f'Loading source: {source}')
-        data.append(content)
-        if source:
-            click.echo(f'Loaded')
- 
-    # tokenize data
-    click.echo('Initializing tokenization process...')
-    tokens = llm.encode_data(encoding_model, data, extras={source_mark})
-    click.echo(f'Total Tokens: {len(tokens)}')
-
-    # create and load dataset
-    click.echo('Sampling Data...')
-    dl: Any = llm.create_data_loader(tokens, max_length=max_length, stride=stride, batch_size=batch_size)
-
-    # create token embedding layer
-    click.echo('Applying Embedding Layer...')
-    inputs, targets = next(iter(dl))
-    click.echo(f'Inputs shape: {inputs.shape}')
-
-    token_embeddings = llm.create_embeddings(vocab_size, output_dim, data_loader=dl)
-    click.echo(f'Token Embeddings Shape: {token_embeddings.shape}')
-
-    # create gpt absolute embedding layer
-    pos_embeddings = llm.create_embeddings(max_length, output_dim)
-    click.echo(f'Pos Embeddings Shape: {pos_embeddings.shape}')
-
-    # input embeddings
-    input_embeddings = token_embeddings + pos_embeddings
-    click.echo(f'Input Embeddings Shape: {input_embeddings.shape}')
+    with llm_pipeline.inputs(pipeline_vars) as p:
+        deque(p(sources), maxlen=0)
 
 
 def run() -> None:

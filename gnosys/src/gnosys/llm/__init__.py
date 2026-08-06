@@ -2,7 +2,7 @@
 # llm module
 # Copyright (C) 2026 Leonardo Rossetti
 
-from typing import cast, Generator, List, Optional, Set, Tuple, TypeVar
+from typing import Any, cast, Dict, Generator, List, Optional, Set, Tuple, TypeVar
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -13,10 +13,8 @@ from gnosys.data.dataset import GptDataset
 
 T = TypeVar('T')
 
-
 def fetch_datasources(sources: List[str], source_mark: str) -> Generator[Tuple[str, str]]:
     """Load/Fetch raw datasources"""
-
     for idx, source in enumerate(sources):
         if idx > 0:
             yield ('', source_mark)
