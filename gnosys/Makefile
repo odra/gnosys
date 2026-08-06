@@ -20,9 +20,13 @@ TEST_DIR := $(MAKEFILE_DIR)test
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
-.PHONY: test/types
-test/types:
+.PHONY: test/types/gnosys
+test/types/gnosys:
 	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)/gnosys
+
+.PHONY: test/types
+test/types: test/types/gnosys_pipeline test/types/gnosys
+
 
 .PHONY: test/gnosys
 test/gnosys:
