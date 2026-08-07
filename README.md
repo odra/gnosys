@@ -14,7 +14,7 @@ Most of the work and source code is inspired from the following book: `Rashka, S
 ## Running
 
 ```
-./scripts/gnosys ...
+./scripts/gnosys-llmbs ...
 ```
 
 ## References
