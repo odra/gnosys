@@ -4,7 +4,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from gnosys.cli import cli
+from gnosys_llmbs.cli import cli
 
 
 def test_build_llm_err(cli_runner):

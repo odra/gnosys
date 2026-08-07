@@ -79,9 +79,16 @@ class PipelineTask:
 
 @dataclass
 class PipelineStep:
-    """Pipeline step dataclass. Stores a task object to be called and its state"""
+    """
+    Pipeline step dataclass.
+
+    It Stores a task object to be called, the result status and the result itself.
+
+    The result will hold the actual task (function) result or an exception.
+    """
     task: PipelineTask
     status: PipelineStepStatus
+    result: Any
 
 
 class Pipeline:
@@ -104,22 +111,32 @@ class Pipeline:
     task or function uses whataver was passed to `self.run` as
     its input.
     """
+
     name: str
     steps: Dict[str, PipelineStep]
     data: Mapping[str, Any] | None
 
     def __init__(self, name: str, data: Mapping[str, Any] | None = None) -> None:
         """Create a new Pipeline instance"""
+
         self.name = name
         self.steps = OrderedDict()
         self.data = data
 
     @property
     def ctx(self) -> Any:
+        """
+        Return context object. To be used in steps.
+        """
+
         return ctx.get()
 
     @contextmanager
     def inputs(self, data: Mapping[str, Any]) -> Iterator[Pipeline]:
+        """
+        Context manager to use a Pipeline instance with different inputs (self.data).
+        """
+
         old_data = self.data
         self.data = data
 
@@ -130,20 +147,22 @@ class Pipeline:
        
     def register_step(self, fn: Callable[..., Any], name: Optional[str] = None) -> None:
         """Adds a task  as pipeline step"""
+
         task = PipelineTask(fn, custom_name=name)
-        self.steps[str(task)] = PipelineStep(task, PipelineStepStatus.VOID)
+        self.steps[str(task)] = PipelineStep(task, PipelineStepStatus.VOID, None)
 
     def step(self, name: str | None = None) -> Callable[..., Any]:
         """Decorator to add a function as a pipeline step"""
+
         def decorator(fn: Callable[..., Any], name: str | None = name) -> Callable[..., Any]:
             self.register_step(fn, name=name)
             return fn
         return decorator
 
-    def run(self, *args: Any, **kwargs: Any) -> Generator[Any]:
-        """Run the pipeline via a generator. Each step is a generator step."""
-        result = None
+    def run(self, *args: Any, **kwargs: Any) -> Generator[PipelineStep]:
+        """Run the pipeline via a generator. Each interaction return an executed step."""
 
+        result = None
         token = ctx.set(self.data)
 
         for idx, step_name in enumerate(self.steps):
@@ -156,18 +175,22 @@ class Pipeline:
                     result = self.steps[step_name].task(result)
             except Exception as e:
                 self.steps[step_name].status = PipelineStepStatus.FAILURE
+                self.steps[step_name].result = e
                 raise e
 
             self.steps[step_name].status = PipelineStepStatus.SUCCESS
+            self.steps[step_name].result = result
     
-            yield result
+            yield self.steps[step_name]
 
         ctx.reset(token)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Generator[Any]:
+    def __call__(self, *args: Any, **kwargs: Any) -> Generator[PipelineStep]:
         """Wrapper of `self.run`"""
+
         return self.run(*args, **kwargs)
 
     def __len__(self) -> int:
         """Return the length of `self.steps`"""
+
         return len(self.steps)
