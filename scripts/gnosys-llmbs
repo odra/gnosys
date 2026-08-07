@@ -5,4 +5,4 @@
 # Copyright (C) 2026 Leonardo Rossetti
 
 
-PYTHONPATH=gnosys/src/ $(which python3) -m gnosys $@
+PYTHONPATH=gnosys/src $(which python3) -m gnosys_llmbs $@

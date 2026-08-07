@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch, mock_open
 
 import pytest
 
-from gnosys import datasource
+from gnosys_llmbs import datasource
 
 
 def test_read_from_file_ok():
@@ -38,7 +38,7 @@ def test_read_err():
 def test_read_file_ok():
     m = MagicMock(return_value='foobar')
 
-    with patch('gnosys.datasource.read_from_file', m):
+    with patch('gnosys_llmbs.datasource.read_from_file', m):
         res = datasource.read('file:///mydata.txt')
 
     assert 'foobar' == res

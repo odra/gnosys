@@ -2,7 +2,7 @@
 # gnosys.tokenizer tests
 # Copyright (C) 2026 Leonardo Rossetti
 
-from gnosys.tokenizer import Tokenizer
+from gnosys_llmbs.tokenizer import Tokenizer
 
 
 def test_simple_ok():

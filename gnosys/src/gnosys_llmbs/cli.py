@@ -8,7 +8,7 @@ from collections import deque
 import click
 import torch
 
-from . import __version__ as gnosys_version
+from . import __version__ as _version
 from . import datasource, tokenizer
 from . import data as datalib
 from . import llm
@@ -16,14 +16,14 @@ from .llm.pipeline import llm_pipeline
 
 @click.group
 def cli() -> None:
-    """gnosys"""
+    """Gnosys LLM Build System"""
     pass
 
 
 @cli.command
 def version() -> None:
     """show program version"""
-    click.echo(f'v{gnosys_version}')
+    click.echo(f'v{_version}')
 
 @cli.command
 @click.option('--source', 'sources', multiple=True, type=str, required=True, help='data source uri (can be used more than once)')

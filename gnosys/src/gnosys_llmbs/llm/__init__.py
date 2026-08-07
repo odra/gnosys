@@ -7,8 +7,8 @@ from typing import Any, cast, Dict, Generator, List, Optional, Set, Tuple, TypeV
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-from gnosys import datasource, tokenizer
-from gnosys.data.dataset import GptDataset
+from gnosys_llmbs import datasource, tokenizer
+from gnosys_llmbs.data.dataset import GptDataset
 
 
 T = TypeVar('T')

@@ -1,9 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # gnosys.cli:version
 # Copyright (C) 2026 Leonardo Rossetti
-from gnosys.cli import cli
-
-import pytest
+from gnosys_llmbs.cli import cli
 
 
 def test_version(cli_runner):

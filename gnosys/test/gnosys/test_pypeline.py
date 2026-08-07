@@ -52,8 +52,8 @@ def test_pipeline_simple_ok():
     assert len(p) == 2
 
     r = None
-    for res in p.run(2):
-        r = res
+    for step in p.run(2):
+        r = step.result
     assert 3 == r
     assert 2 == len([True for s in p.steps.values() if s.status.is_ok()])
 
@@ -71,8 +71,8 @@ def test_pipeline_ctx_ok():
     assert len(p) == 2
 
     r = None
-    for res in p.run(2):
-        r = res
+    for step in p.run(2):
+        r = step.result
     assert 8 == r
     assert 2 == len([True for s in p.steps.values() if s.status.is_ok()])
     assert None is p.ctx

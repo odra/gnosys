@@ -24,13 +24,20 @@ clean:
 test/types/gnosys:
 	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)/gnosys
 
-.PHONY: test/types
-test/types: test/types/gnosys_pipeline test/types/gnosys
+.PHONY: test/types/gnosys_llmbs
+test/types/gnosys_llmbs:
+	$(MYPY) $(MYPY_OPTS) $(SRC_DIR)/gnosys_llmbs
 
+.PHONY: test/types
+test/types: test/types/gnosys test/types/gnosys_llmbs
 
 .PHONY: test/gnosys
 test/gnosys:
-	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)
+	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys
+
+.PHONY: test/gnosys_llmbs
+test/gnosys_llmbs:
+	PYTHONPATH=$(SRC_DIR) $(PYTEST) $(PYTEST_OPTS) $(TEST_DIR)/gnosys_llmbs
 
 .PHONY: test
-test: test/types test/gnosys
+test: test/types test/gnosys test/gnosys_llmbs
