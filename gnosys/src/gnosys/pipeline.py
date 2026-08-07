@@ -4,12 +4,14 @@
 
 import enum
 import inspect
+import logging
 from dataclasses import dataclass
 from collections import OrderedDict
 from collections.abc import Mapping
 from contextlib import contextmanager
 from typing import Any, Callable, Dict, Generic, Generator, Iterator, Optional, ParamSpec, TypeVar
 
+from . import log
 from .context import ctx
 
 
@@ -115,13 +117,15 @@ class Pipeline:
     name: str
     steps: Dict[str, PipelineStep]
     data: Mapping[str, Any] | None
+    logger: logging.Logger
 
-    def __init__(self, name: str, data: Mapping[str, Any] | None = None) -> None:
+    def __init__(self, name: str, data: Mapping[str, Any] | None = None, logger: logging.Logger | None = None) -> None:
         """Create a new Pipeline instance"""
 
         self.name = name
         self.steps = OrderedDict()
         self.data = data
+        self.logger = logger if logger is not None else log.build_logger()
 
     @property
     def ctx(self) -> Any:
@@ -169,6 +173,8 @@ class Pipeline:
             try:
                 self.steps[step_name].status = PipelineStepStatus.RUNNING
 
+                self.logger.info(f'Pipeline<{self.name}>.PipelineStep<{step_name}>.start')
+
                 if idx == 0:
                     result = self.steps[step_name].task(*args, **kwargs)
                 else:
@@ -176,7 +182,10 @@ class Pipeline:
             except Exception as e:
                 self.steps[step_name].status = PipelineStepStatus.FAILURE
                 self.steps[step_name].result = e
+                self.logger.error(e)
                 raise e
+
+            self.logger.info(f'Pipeline<{self.name}>.PipelineStep<{step_name}>.done')
 
             self.steps[step_name].status = PipelineStepStatus.SUCCESS
             self.steps[step_name].result = result
