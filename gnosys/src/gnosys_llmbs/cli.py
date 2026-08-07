@@ -47,13 +47,6 @@ def build_llm(sources: List[str], source_mark: str, encoding_model: str,
         'output_dim': output_dim
     }
 
-    click.echo(f'Inputs')
-    click.echo(f'\tSource Mark: {source_mark}')
-    click.echo(f'\tEncoding: {encoding_model}')
-    click.echo(f'\tMax Length: {max_length}')
-    click.echo(f'\tStride: {stride}')
-    click.echo(f'\tBatch Size: {batch_size}')
-
     with llm_pipeline.inputs(pipeline_vars) as p:
         deque(p(sources), maxlen=0)
 

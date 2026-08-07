@@ -22,22 +22,22 @@ def _fetch_datasources(sources: List[str]) -> List[str]:
     data = []
     for source, content in fetch_datasources(sources, source_mark):
         if source:
-            print(f'Loading source: {source}')
+            llm_pipeline.logger.info(f'Loading source: {source}')
         data.append(content)
         if source:
-            print('Loaded')
+            llm_pipeline.logger.info('Loaded')
 
     return data
 
 
 @llm_pipeline.step()
 def encode_datasources(data: List[str]) -> List[int]:
-    print('Initializing tokenization process...')
+    llm_pipeline.logger.info('Initializing tokenization process...')
     encoding_model = llm_pipeline.ctx['encoding_model']
     extras = {llm_pipeline.ctx['source_mark']}
     
     tokens = encode_data(encoding_model, data, extras)
-    print(f'Total Tokens: {len(tokens)}')
+    llm_pipeline.logger.info(f'Total Tokens: {len(tokens)}')
 
     return tokens
 
@@ -51,7 +51,7 @@ def create_torch_dataloader(token_ids: List[int]) -> DataLoader[T]:
     drop_last: bool = llm_pipeline.ctx.get('drop_last', True)
     num_workers: int = llm_pipeline.ctx.get('num_workers', 0)
 
-    print('Sampling Data...')
+    llm_pipeline.logger.info('Creating Pytorch GPT Dataloader...')
 
     return create_data_loader(token_ids, max_length,
                               stride,batch_size,
@@ -64,15 +64,15 @@ def add_embeddings_to_dataloader(dataloader: Optional[DataLoader[T]]) -> torch.T
     output_dim = llm_pipeline.ctx['output_dim']
     vocab_size = llm_pipeline.ctx['vocab_size']
 
-    print('Applying Embedding Layer...') 
+    llm_pipeline.logger.info('Applying Embedding Layer...')
 
     token_embeddings = create_embeddings(vocab_size, output_dim, data_loader=dataloader)
-    print(f'Token Embeddings Shape: {token_embeddings.shape}')  
+    llm_pipeline.logger.info(f'Token Embeddings Shape: {token_embeddings.shape}')  
 
     pos_embeddings = create_embeddings(max_length, output_dim)
-    print(f'Pos Embeddings Shape: {pos_embeddings.shape}')
+    llm_pipeline.logger.info(f'Pos Embeddings Shape: {pos_embeddings.shape}')
 
     input_embeddings = token_embeddings + pos_embeddings
-    print(f'Input Embeddings Shape: {input_embeddings.shape}')
+    llm_pipeline.logger.info(f'Input Embeddings Shape: {input_embeddings.shape}')
     
     return input_embeddings
