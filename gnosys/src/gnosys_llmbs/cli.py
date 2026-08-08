@@ -37,7 +37,9 @@ def version() -> None:
 def build_llm(sources: List[str], source_mark: str, encoding_model: str,
               max_length: int, stride: int, batch_size: int,
               vocab_size: int, output_dim: int) -> None:
-    pipeline_vars = {
+    """Build LLM subcommand"""
+    inputs = {
+        'sources': sources,
         'source_mark': source_mark,
         'encoding_model': encoding_model,
         'max_length': max_length,
@@ -46,9 +48,8 @@ def build_llm(sources: List[str], source_mark: str, encoding_model: str,
         'vocab_size': vocab_size,
         'output_dim': output_dim
     }
-
-    with llm_pipeline.inputs(pipeline_vars) as p:
-        deque(p(sources), maxlen=0)
+    
+    deque(llm_pipeline(inputs), maxlen=0)
 
 
 def run() -> None:

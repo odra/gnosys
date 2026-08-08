@@ -11,12 +11,12 @@ from . import fetch_datasources, encode_data, create_data_loader, create_embeddi
 from gnosys import pipeline
 
 
-llm_pipeline_vars:Dict[str, Any] = {}
-llm_pipeline = pipeline.Pipeline('llm_pipeline', llm_pipeline_vars)
+llm_pipeline = pipeline.Pipeline('llm_pipeline')
 
 
 @llm_pipeline.step()
-def _fetch_datasources(sources: List[str]) -> List[str]:
+def _fetch_datasources() -> List[str]:
+    sources = llm_pipeline.ctx['sources']
     source_mark:str = llm_pipeline.ctx['source_mark']
 
     data = []

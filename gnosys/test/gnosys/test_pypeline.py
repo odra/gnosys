@@ -43,7 +43,7 @@ def test_pipeline_simple_ok():
     p = pipeline.Pipeline('test_pipeline')
     assert len(p) == 0
 
-    p.register_step(lambda n: n + n, name='lambda_sum')
+    p.register_step(lambda: 2 + 2, name='lambda_sum')
     assert len(p) == 1
 
     @p.step()
@@ -59,10 +59,10 @@ def test_pipeline_simple_ok():
 
 
 def test_pipeline_ctx_ok():
-    p = pipeline.Pipeline('test_pipeline', {'n': 5})
+    p = pipeline.Pipeline('test_pipeline')
     assert len(p) == 0
 
-    p.register_step(lambda n: n + n, name='lambda_sum')
+    p.register_step(lambda: 2 + 2, name='lambda_sum')
     assert len(p) == 1
 
     @p.step()
@@ -71,7 +71,7 @@ def test_pipeline_ctx_ok():
     assert len(p) == 2
 
     r = None
-    for step in p.run(2):
+    for step in p.run({'n': 5}):
         r = step.result
     assert 8 == r
     assert 2 == len([True for s in p.steps.values() if s.status.is_ok()])

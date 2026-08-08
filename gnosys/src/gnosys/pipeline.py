@@ -8,7 +8,6 @@ import logging
 from dataclasses import dataclass
 from collections import OrderedDict
 from collections.abc import Mapping
-from contextlib import contextmanager
 from typing import Any, Callable, Dict, Generic, Generator, Iterator, Optional, ParamSpec, TypeVar
 
 from . import log
@@ -119,12 +118,11 @@ class Pipeline:
     data: Mapping[str, Any] | None
     logger: logging.Logger
 
-    def __init__(self, name: str, data: Mapping[str, Any] | None = None, logger: logging.Logger | None = None) -> None:
+    def __init__(self, name: str, logger: logging.Logger | None = None) -> None:
         """Create a new Pipeline instance"""
 
         self.name = name
         self.steps = OrderedDict()
-        self.data = data
         self.logger = logger if logger is not None else log.build_logger()
 
     @property
@@ -134,20 +132,6 @@ class Pipeline:
         """
 
         return ctx.get()
-
-    @contextmanager
-    def inputs(self, data: Mapping[str, Any]) -> Iterator[Pipeline]:
-        """
-        Context manager to use a Pipeline instance with different inputs (self.data).
-        """
-
-        old_data = self.data
-        self.data = data
-
-        try:
-            yield self
-        finally:
-            self.data = old_data
        
     def register_step(self, fn: Callable[..., Any], name: Optional[str] = None) -> None:
         """Adds a task  as pipeline step"""
@@ -163,11 +147,11 @@ class Pipeline:
             return fn
         return decorator
 
-    def run(self, *args: Any, **kwargs: Any) -> Generator[PipelineStep]:
+    def run(self, inputs: Mapping[str, Any] | None = None) -> Generator[PipelineStep]:
         """Run the pipeline via a generator. Each interaction return an executed step."""
 
         result = None
-        token = ctx.set(self.data)
+        token = ctx.set(inputs if inputs else {})
 
         for idx, step_name in enumerate(self.steps):
             try:
@@ -176,7 +160,7 @@ class Pipeline:
                 self.logger.info(f'Pipeline<{self.name}>.PipelineStep<{step_name}>.start')
 
                 if idx == 0:
-                    result = self.steps[step_name].task(*args, **kwargs)
+                    result = self.steps[step_name].task()
                 else:
                     result = self.steps[step_name].task(result)
             except Exception as e:
@@ -194,10 +178,10 @@ class Pipeline:
 
         ctx.reset(token)
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Generator[PipelineStep]:
+    def __call__(self, inputs: Mapping[str, Any] | None = None) -> Generator[PipelineStep]:
         """Wrapper of `self.run`"""
 
-        return self.run(*args, **kwargs)
+        return self.run(inputs)
 
     def __len__(self) -> int:
         """Return the length of `self.steps`"""
