@@ -18,12 +18,12 @@ def test_build_llm_err(cli_runner):
 def test_build_llm_ok(cli_runner, fixdir, caplog):
     caplog.set_level(logging.INFO)
     
-    res = cli_runner.invoke(cli, ['build-llm', '--source', f'file:///{fixdir}/the_verdict.txt'])
+    res = cli_runner.invoke(cli, ['build-llm', '--source', f'file://{fixdir}/the_verdict.txt'])
 
     assert 0 == res.exit_code
     assert [
     'Pipeline<llm_pipeline>.PipelineStep<gnosys_llmbs.llm.pipeline:_fetch_datasources>.start',
-    'Loading source: file:////var/home/odra/Work/odrait/gnosys/gnosys/test/fixtures/the_verdict.txt',
+    f'Loading source: file://{fixdir}/the_verdict.txt',
     'Loaded',
     'Pipeline<llm_pipeline>.PipelineStep<gnosys_llmbs.llm.pipeline:_fetch_datasources>.done',
     'Pipeline<llm_pipeline>.PipelineStep<gnosys_llmbs.llm.pipeline:encode_datasources>.start',
